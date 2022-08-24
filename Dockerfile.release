@@ -1,0 +1,35 @@
+FROM --platform=linux/arm64 torizon/debian:2-bullseye
+
+
+
+
+# Make sure we don't get notifications we can't answer during building.
+ENV DEBIAN_FRONTEND="noninteractive"
+
+
+
+# commands that should be run before installing packages (ex: to add a feed or keys)
+
+
+# your regular RUN statements here
+# Install required packages
+RUN if [ ! -z "i2c-tools" ]; then \
+    apt-get -q -y update \
+    && apt-get -q -y install i2c-tools \
+    && rm -rf /var/lib/apt/lists/* ; \
+    fi
+
+# commands that should be run after all packages have been installed (RUN/COPY/ADD)
+
+RUN usermod -a -G i2cdev torizon
+
+COPY work/i2c-accel /i2c-accel
+
+
+USER torizon
+
+WORKDIR /i2c-accel
+
+# commands that will run on the target (ENTRYPOINT or CMD)
+CMD /i2c-accel/i2c-accel 
+
